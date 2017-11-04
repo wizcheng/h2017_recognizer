@@ -1,3 +1,4 @@
+import com.sun.media.sound.WaveFileWriter;
 import org.apache.commons.io.IOUtils;
 
 import javax.sound.sampled.*;
@@ -45,15 +46,25 @@ public class Mp3ToWavConversionDemo {
             try (final AudioInputStream convert1AIS = AudioSystem.getAudioInputStream(convertFormat, sourceAIS);
                  final AudioInputStream convert2AIS = AudioSystem.getAudioInputStream(audioFormat, convert1AIS);
                  final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                byte [] buffer = new byte[8192];
-                while(true){
-                    int readCount = convert2AIS.read(buffer, 0, buffer.length);
-                    if(readCount == -1){
-                        break;
-                    }
-                    baos.write(buffer, 0, readCount);
-                }
-                return baos.toByteArray();
+
+
+                File tempFile = File.createTempFile("xxx", "yyy");
+
+                WaveFileWriter waveFileWriter = new WaveFileWriter();
+                waveFileWriter.write(convert2AIS, AudioFileFormat.Type.WAVE, tempFile);
+
+
+                return IOUtils.toByteArray(new FileInputStream(tempFile));
+
+//                byte [] buffer = new byte[8192];
+//                while(true){
+//                    int readCount = convert2AIS.read(buffer, 0, buffer.length);
+//                    if(readCount == -1){
+//                        break;
+//                    }
+//                    baos.write(buffer, 0, readCount);
+//                }
+//                return baos.toByteArray();
             }
         }
     }
