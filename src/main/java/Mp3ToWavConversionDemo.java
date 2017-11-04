@@ -6,12 +6,21 @@ import java.io.*;
 public class Mp3ToWavConversionDemo {
 
 
+    private static final AudioFormat PCM_SIGNED_16000_mono_16bit = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 16000, 16, 1, 2, 16000, false);
+
     public static void main(String[] args) throws Exception {
 
         byte[] bytesOutput;
         String inputFileName = "voice_samples/prideandprejudice_01_austen_64kb.mp3";
         String outputFileName = inputFileName + ".wav";
-        AudioFormat convertFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 8000, 16, 1, 1, 8000, false);
+        mp3towav(inputFileName, outputFileName);
+
+    }
+
+    public static void mp3towav(String inputFileName, String outputFileName) throws Exception {
+
+        byte[] bytesOutput;
+        AudioFormat convertFormat = PCM_SIGNED_16000_mono_16bit;
 
         try(FileInputStream fileInputStream = new FileInputStream(inputFileName)){
             byte[] bytesInput = IOUtils.toByteArray(fileInputStream);
@@ -21,8 +30,8 @@ public class Mp3ToWavConversionDemo {
         try (FileOutputStream output = new FileOutputStream(outputFileName)){
             IOUtils.write(bytesOutput, output);
         }
-
     }
+
 
     public static byte [] getAudioDataBytes(byte [] sourceBytes, AudioFormat audioFormat) throws UnsupportedAudioFileException, IllegalArgumentException, Exception {
         if(sourceBytes == null || sourceBytes.length == 0 || audioFormat == null){
