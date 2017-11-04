@@ -19,6 +19,13 @@ public class TranscriberDemo {
 
         configuration.setSampleRate(8000);
 
+//        Please note that the audio for this decoding must have one of the following formats:
+//
+//        RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 16000 Hz
+//                or
+//
+//        RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 8000 Hz
+
         StreamSpeechRecognizer recognizer = new StreamSpeechRecognizer(configuration);
 //        InputStream stream = new FileInputStream(new File("10001-90210-01803.wav"));
         InputStream stream = new FileInputStream(new File("voice_samples/OSR_us_000_0034_8k.wav"));
