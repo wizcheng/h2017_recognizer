@@ -18,6 +18,12 @@ Synchronous call
 curl -F "file=@OSR_us_000_0034_8k.wav" http://localhost:8081/transcribe
 ```
 
+Supported format
+```
+RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 16000 Hz
+RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 8000 Hz
+```
+
 ### /transform
 Transform * input to WAV format that will supported by sphinx
 
