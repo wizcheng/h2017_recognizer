@@ -2,9 +2,10 @@
 
 # Transcriber and Transformer for Voice Log
 
-## Get Start
+## Get Started
 
 run org.hackathon2017.transriber.Transcriber to start
+
 
 ## APIs:
 
