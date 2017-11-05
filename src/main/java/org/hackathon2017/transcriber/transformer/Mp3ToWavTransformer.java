@@ -1,10 +1,12 @@
+package org.hackathon2017.transcriber.transformer;
+
 import com.sun.media.sound.WaveFileWriter;
 import org.apache.commons.io.IOUtils;
 
 import javax.sound.sampled.*;
 import java.io.*;
 
-public class Mp3ToWavConversionDemo {
+public class Mp3ToWavTransformer {
 
 
     private static final AudioFormat PCM_SIGNED_16000_mono_16bit = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 16000, 16, 1, 2, 16000, false);
@@ -31,6 +33,10 @@ public class Mp3ToWavConversionDemo {
         try (FileOutputStream output = new FileOutputStream(outputFileName)){
             IOUtils.write(bytesOutput, output);
         }
+    }
+
+    public static byte[] mp3towav(byte[] inputBytes) throws Exception {
+        return getAudioDataBytes(inputBytes, PCM_SIGNED_16000_mono_16bit);
     }
 
 

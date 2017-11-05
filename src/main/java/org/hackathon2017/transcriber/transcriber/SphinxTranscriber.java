@@ -12,7 +12,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TranscriberDemo {
+public class SphinxTranscriber {
 
     public static void main(String[] args) throws Exception {
 
@@ -29,21 +29,21 @@ public class TranscriberDemo {
 
     private static class AudioInfo {
 
-        private boolean compatiable;
+        private boolean compatible;
         private int sampleRate;
         private String reason;
 
-        public AudioInfo(boolean compatiable, int sampleRate, String reason) {
-            this.compatiable = compatiable;
+        public AudioInfo(boolean compatible, int sampleRate, String reason) {
+            this.compatible = compatible;
             this.sampleRate = sampleRate;
             this.reason = reason;
         }
 
-        public static AudioInfo notCompatiable(String reason){
+        public static AudioInfo notCompatible(String reason){
             return new AudioInfo(false, 0, reason);
         }
 
-        public static AudioInfo compatiable(int sampleRate){
+        public static AudioInfo compatible(int sampleRate){
             return new AudioInfo(true, sampleRate, null);
         }
     }
@@ -60,18 +60,18 @@ public class TranscriberDemo {
         System.out.printf("format.Encoding = " + format.getEncoding());
 
         if (format.getSampleSizeInBits()!=16)
-            return AudioInfo.notCompatiable("Sample size must be 16bit, was " + format.getSampleSizeInBits());
+            return AudioInfo.notCompatible("Sample size must be 16bit, was " + format.getSampleSizeInBits());
 
         if (format.getChannels()!=1)
-            return AudioInfo.notCompatiable("Must have only 1 channel, aka mono, channel size was " + format.getChannels());
+            return AudioInfo.notCompatible("Must have only 1 channel, aka mono, channel size was " + format.getChannels());
 
         if (format.getEncoding() != AudioFormat.Encoding.PCM_SIGNED)
-            return AudioInfo.notCompatiable("Encoding must be PCM_SIGNED, was " + format.getEncoding());
+            return AudioInfo.notCompatible("Encoding must be PCM_SIGNED, was " + format.getEncoding());
 
         if (format.getSampleRate() != 8000.0 && format.getSampleRate() != 16000.0)
-            return AudioInfo.notCompatiable("Sample rate must be 8K or 16K, was " + format.getSampleRate());
+            return AudioInfo.notCompatible("Sample rate must be 8K or 16K, was " + format.getSampleRate());
 
-        return AudioInfo.compatiable((int) format.getSampleRate());
+        return AudioInfo.compatible((int) format.getSampleRate());
     }
 
 
@@ -81,7 +81,7 @@ public class TranscriberDemo {
         try(BufferedInputStream bis = new BufferedInputStream(stream)){
 
             AudioInfo audioInfo = check(bis);
-            if (!audioInfo.compatiable){
+            if (!audioInfo.compatible){
                 throw new IllegalArgumentException("Audio transcribe un-support, reason: " + audioInfo.reason);
             }
 //            AudioInfo audioInfo = new AudioInfo(true, 16000, "supported");
