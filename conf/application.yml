@@ -22,4 +22,4 @@ external:
     url: http://localhost:8081
 
   storage:
-    url: data
+    url: ${storage.path:data}
