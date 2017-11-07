@@ -6,3 +6,20 @@ spring:
     multipart:
       max-file-size: -1
       max-request-size: -1
+
+
+external:
+  search:
+    url: http://localhost:9200
+
+  transformer:
+    url: http://localhost:8081
+
+  sphinxTranscriber:
+    url: http://localhost:8081
+
+  storageService:
+    url: http://localhost:8081
+
+  storage:
+    url: data

@@ -14,7 +14,6 @@ import java.util.Map;
 @RestController
 public class TranscriberApi {
 
-
     @RequestMapping(value = "/transcribe", method = RequestMethod.POST, consumes = "multipart/form-data")
     @ResponseBody
     Map<String, Object> transcribe(@RequestParam MultipartFile file) throws IOException, UnsupportedAudioFileException {
@@ -26,7 +25,7 @@ public class TranscriberApi {
         );
 
         long start = System.currentTimeMillis();
-        List<String> transcribe = SphinxTranscriber.transcribe(file.getInputStream());
+        List<Map<String, Object>> transcribe = SphinxTranscriber.transcribe(file.getInputStream());
         long takenMs = System.currentTimeMillis() - start;
 
         Map<String, Object> response = toResponse(transcribe, takenMs, sourceInfo);
@@ -34,14 +33,12 @@ public class TranscriberApi {
         return response;
     }
 
-    private Map<String, Object> toResponse(List<String> transcribe, long takenMs, Map<String, Object> sourceInfo) {
+    private Map<String, Object> toResponse(Object transcribe, long takenMs, Map<String, Object> sourceInfo) {
         return ImmutableMap.of(
                     "status", "success",
                     "transcriber", "sphinx",
                     "durationMs", takenMs,
-                    "output", ImmutableMap.of(
-                            "message", transcribe
-                    ),
+                    "output", transcribe,
                     "source", sourceInfo
             );
     }

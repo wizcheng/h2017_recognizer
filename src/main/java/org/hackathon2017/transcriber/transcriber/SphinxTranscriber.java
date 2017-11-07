@@ -1,8 +1,12 @@
 package org.hackathon2017.transcriber.transcriber;
 
+import com.google.common.collect.ImmutableMap;
 import edu.cmu.sphinx.api.Configuration;
 import edu.cmu.sphinx.api.SpeechResult;
 import edu.cmu.sphinx.api.StreamSpeechRecognizer;
+import edu.cmu.sphinx.result.Result;
+import edu.cmu.sphinx.result.WordResult;
+import edu.cmu.sphinx.util.LogMath;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -11,12 +15,14 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SphinxTranscriber {
 
     public static void main(String[] args) throws Exception {
 
-        InputStream stream = new FileInputStream(new File("voice_samples/10001-90210-01803.wav"));
+        InputStream stream = new FileInputStream(new File("voice_samples/adaption/earwolf_elon_musk_trim_4.wav"));
 //        InputStream stream = new FileInputStream(new File("voice_samples/OSR_us_000_0034_8k.wav"));
 
         // http://www.loyalbooks.com/book/pride-and-prejudice-by-jane-austen
@@ -24,7 +30,7 @@ public class SphinxTranscriber {
 //        InputStream stream = new FileInputStream(new File("voice_samples/prideandprejudice_01_austen_64kb_16000Hx.wav"));
 
 
-            transcribe(stream);
+        System.out.println(transcribe(stream));
     }
 
     private static class AudioInfo {
@@ -71,12 +77,16 @@ public class SphinxTranscriber {
         if (format.getSampleRate() != 8000.0 && format.getSampleRate() != 16000.0)
             return AudioInfo.notCompatible("Sample rate must be 8K or 16K, was " + format.getSampleRate());
 
+
+        System.out.println("Sample rate for file is " + format.getSampleRate());
+
         return AudioInfo.compatible((int) format.getSampleRate());
     }
 
 
 
-    public static List<String> transcribe(InputStream stream) throws IOException, UnsupportedAudioFileException {
+
+    public static List<Map<String, Object>> transcribe(InputStream stream) throws IOException, UnsupportedAudioFileException {
 
         try(BufferedInputStream bis = new BufferedInputStream(stream)){
 
@@ -110,21 +120,69 @@ public class SphinxTranscriber {
             //
 
 
+
             StreamSpeechRecognizer recognizer = new StreamSpeechRecognizer(configuration);
 
+            List<Map<String, Object>> results = new ArrayList<>();
 
+
+            long previousTime = 0;
             recognizer.startRecognition(stream);
             SpeechResult result;
             while ((result = recognizer.getResult()) != null) {
                 transcribedResult.add(result.getHypothesis());
+                Result resultOfResult = result.getResult();
+
                 System.out.format("Hypothesis: %s\n", result.getHypothesis());
+
+                System.out.println("-----------");
+                System.out.println(result.getNbest(3));
+                System.out.println("-----------");
+
+                results.add(extractResult(result, previousTime, resultOfResult.getCollectTime()));
+
+                previousTime = resultOfResult.getCollectTime();
             }
             recognizer.stopRecognition();
 
-            return transcribedResult;
-
+            return results;
         }
 
 
+    }
+
+    public static Map<String, Object> extractResult(SpeechResult result, long previousTime, long currTime){
+
+        List<ImmutableMap<Object, Object>> raw = result.getWords()
+                .stream()
+                .map(w -> {
+
+                    double confidentPercentage = LogMath.getLogMath().logToLinear((float) w.getConfidence());
+                    double scorePercentage = LogMath.getLogMath().logToLinear((float) w.getScore());
+
+                    return ImmutableMap.builder()
+                            .put("word", w.getWord().getSpelling())
+                            .put("scorePercentage", scorePercentage)
+                            .put("confidentPercentage", confidentPercentage)
+                            .put("isFiller", w.getWord().isFiller())
+                            .put("isStart", w.getWord().isSentenceStartWord())
+                            .put("isEnd", w.getWord().isSentenceEndWord())
+                            .build();
+
+                })
+                .collect(Collectors.toList());
+
+        return ImmutableMap.of(
+                "raw", raw,
+                "message", result.getHypothesis(),
+                "startMs", previousTime,
+                "endMs", currTime
+        );
+    }
+
+    public static void printWorkResult(WordResult w) {
+        double confidentPercentage = LogMath.getLogMath().logToLinear((float) w.getConfidence());
+        double scorePercentage = LogMath.getLogMath().logToLinear((float) w.getScore());
+        System.out.println(w.getWord().getSpelling() + " ("+confidentPercentage + ", score="+scorePercentage+") ");
     }
 }

@@ -13,8 +13,7 @@ public class Mp3ToWavTransformer {
 
     public static void main(String[] args) throws Exception {
 
-        byte[] bytesOutput;
-        String inputFileName = "voice_samples/prideandprejudice_01_austen_64kb.mp3";
+        String inputFileName = "voice_samples/wiz_sample.wav";
         String outputFileName = inputFileName + ".wav";
         mp3towav(inputFileName, outputFileName);
 
@@ -41,8 +40,11 @@ public class Mp3ToWavTransformer {
 
 
     public static byte [] getAudioDataBytes(byte [] sourceBytes, AudioFormat audioFormat) throws UnsupportedAudioFileException, IllegalArgumentException, Exception {
-        if(sourceBytes == null || sourceBytes.length == 0 || audioFormat == null){
-            throw new IllegalArgumentException("Illegal Argument passed to this method");
+        if(sourceBytes == null || sourceBytes.length == 0){
+            throw new IllegalArgumentException("Source Bytes is null or empty");
+        }
+        if(audioFormat == null){
+            throw new IllegalArgumentException("Audio format is null");
         }
 
         try (final ByteArrayInputStream bais = new ByteArrayInputStream(sourceBytes);
